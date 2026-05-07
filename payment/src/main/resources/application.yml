@@ -24,7 +24,7 @@ auth:
 
 logging:
   level:
-    com.example.payment: DEBUG
+    ru.job4j.payment: DEBUG
 
 management:
   endpoints:

@@ -1,4 +1,4 @@
-package com.example.payment;
+package ru.job4j.payment;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

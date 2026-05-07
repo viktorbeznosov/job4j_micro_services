@@ -27,7 +27,7 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
-    com.example.auth: DEBUG
+    ru.job4j.auth: DEBUG
 
 management:
   endpoints:

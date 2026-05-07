@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
     
-    <groupId>com.example</groupId>
+    <groupId>ru.job4j</groupId>
     <artifactId>payment-service</artifactId>
     <version>1.0.0</version>
     <name>payment-service</name>
