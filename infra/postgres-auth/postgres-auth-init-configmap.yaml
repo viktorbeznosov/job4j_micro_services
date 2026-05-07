@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-auth-init-configmap
+  namespace: microservices-demo
+data:
+  init.sql: |
+    SELECT 'CREATE DATABASE auth_db'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'auth_db');

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-configmap
+  namespace: microservices-demo
+data:
+  SERVER_PORT: "8081"
+  SPRING_PROFILES_ACTIVE: "kubernetes"
+  DB_HOST: "postgres-auth-service"
+  DB_PORT: "5432"
+  DB_NAME: "auth_db"
+  JWT_EXPIRATION: "86400000"
+  AUTH_SERVICE_URL: "http://auth-service.microservices-demo.svc.cluster.local:8081"

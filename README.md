@@ -2,6 +2,12 @@
 
 Учебный production-like проект микросервисной архитектуры на Java 17 + Spring Boot 3.
 
+## Этапы разработки
+
+**Первый этап (выполнен):** Реализация микросервисов (auth и payment) с бизнес-логикой, Docker Compose для локального запуска.
+
+**Второй этап (текущий):** Kubernetes deployment - добавлена папка `infra/` с манифестами для развертывания в Kubernetes.
+
 ## Архитектура
 
 ```
@@ -218,6 +224,129 @@ curl -X GET http://localhost:8081/api/auth/users \
 После запуска сервисов, Swagger UI доступен по адресам:
 - Auth: http://localhost:8081/swagger-ui.html
 - Payment: http://localhost:8082/swagger-ui.html
+
+---
+
+## Второй этап: Kubernetes Deployment
+
+Папка `infra/` содержит Kubernetes манифесты для развертывания проекта в кластере.
+
+### Быстрый старт
+
+1. **Сборка Docker образов:**
+```bash
+# Для Minikube
+minikube start
+eval $(minikube docker-env)
+
+cd auth && docker build -t demo/auth-service:latest .
+cd ../payment && docker build -t demo/payment-service:latest .
+
+# Для kind
+kind create cluster
+kind load docker-image demo/auth-service:latest
+kind load docker-image demo/payment-service:latest
+```
+
+2. **Применение манифестов:**
+```bash
+kubectl apply -k infra/
+```
+
+3. **Проверка развертывания:**
+```bash
+kubectl get all -n microservices-demo
+kubectl get ingress -n microservices-demo
+```
+
+### Архитектура в Kubernetes
+
+```
+├── auth/           # Сервис аутентификации и пользователей
+├── payment/        # Сервис заявок на оплату
+├── infra/          # Kubernetes манифесты
+│   ├── namespace.yaml
+│   ├── kustomization.yaml
+│   ├── configmap/
+│   ├── secrets/
+│   ├── postgres-auth/
+│   ├── postgres-payment/
+│   ├── auth/
+│   ├── payment/
+│   ├── ingress/
+│   └── README.md
+├── docker-compose.yml
+└── README.md
+```
+
+### Как работает сервисы в Kubernetes
+
+1. **Docker образы**: Сервисы собираются как multi-stage Docker образы (Maven build + JRE runtime)
+2. **Service + DNS**: 
+   - Auth доступен по: `http://auth-service.microservices-demo.svc.cluster.local:8081`
+   - Payment доступен по: `http://payment-service.microservices-demo.svc.cluster.local:8082`
+3. **Межсервисное взаимодействие**: Payment обращается к Auth через Kubernetes DNS
+   - Переменная `AUTH_SERVICE_URL=http://auth-service.microservices-demo.svc.cluster.local:8081`
+4. **Внешний трафик**: Идет через Ingress
+   - `http://auth.localdev.me` -> auth-service:8081
+   - `http://payment.localdev.me` -> payment-service:8082
+
+### Команды для проверки
+
+```bash
+# Проверка подов
+kubectl get pods -n microservices-demo
+kubectl logs -f <pod-name> -n microservices-demo
+
+# Проверка сервисов
+kubectl get svc -n microservices-demo
+
+# Проверка ingress
+kubectl get ingress -n microservices-demo
+kubectl describe ingress app-ingress -n microservices-demo
+
+# Проверка DNS внутри кластера
+kubectl exec -it <payment-pod> -n microservices-demo -- nslookup auth-service
+
+# Проверка связи между сервисами
+kubectl exec -it <payment-pod> -n microservices-demo -- wget -qO- http://auth-service:8081/actuator/health
+```
+
+### Внешние адреса
+
+Добавьте в `/etc/hosts` (или `C:\Windows\System32\drivers\etc\hosts`):
+```
+127.0.0.1 auth.localdev.me
+127.0.0.1 payment.localdev.me
+```
+
+Для Minikube выполните:
+```bash
+minikube tunnel
+```
+
+Теперь доступны:
+- http://auth.localdev.me/swagger-ui/index.html
+- http://payment.localdev.me/swagger-ui/index.html
+
+### Примеры запросов через Ingress
+
+```bash
+# Логин
+curl -X POST http://auth.localdev.me/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+
+# Создание платежа (с токеном)
+curl -X POST http://payment.localdev.me/api/payments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"description":"Test payment"}'
+```
+
+### Подробная документация
+
+См. `infra/README.md` для детального описания всех манифестов и порядка деплоя.
 
 ## Структура базы данных
 

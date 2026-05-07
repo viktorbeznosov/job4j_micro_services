@@ -1,13 +1,13 @@
 server:
-  port: 8082
+  port: ${SERVER_PORT:8082}
 
 spring:
   application:
     name: payment-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/payment_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${DB_HOST:postgres-payment-service}/${DB_NAME:payment_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -20,10 +20,11 @@ spring:
 
 auth:
   service:
-    url: http://localhost:8081
+    url: ${AUTH_SERVICE_URL:http://auth-service:8081}
 
 logging:
   level:
+    com.example.payment: DEBUG
     ru.job4j.payment: DEBUG
 
 management:
@@ -31,3 +32,11 @@ management:
     web:
       exposure:
         include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      livenessState:
+        enabled: true
+      readinessState:
+        enabled: true
