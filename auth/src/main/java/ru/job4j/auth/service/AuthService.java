@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,15 +44,19 @@ public class AuthService {
             throw new BadRequestException("Email is already in use");
         }
 
-        UserEntity user = UserEntity.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .fullName(request.getFullName())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .build();
+        // Используем конструктор вместо builder
+        UserEntity user = new UserEntity();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setFullName(request.getFullName());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        // roles инициализируется как new HashSet<>() в классе UserEntity
 
+        // Получаем роль USER
         RoleEntity userRole = roleRepository.findByName(RoleName.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Role ROLE_USER not found"));
+
+        // Добавляем роль
         user.getRoles().add(userRole);
 
         UserEntity saved = userRepository.save(user);

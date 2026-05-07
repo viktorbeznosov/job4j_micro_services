@@ -36,6 +36,7 @@ public class UserEntity {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+    @Builder.Default  // Добавить эту аннотацию!
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

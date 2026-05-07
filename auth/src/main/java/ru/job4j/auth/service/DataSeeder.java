@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+
 @Component
 @RequiredArgsConstructor
 public class DataSeeder {
@@ -32,6 +34,7 @@ public class DataSeeder {
                     .email("admin@test.com")
                     .fullName("Администратор")
                     .password(passwordEncoder.encode("admin123"))
+                    .roles(new HashSet<>())
                     .build();
             admin.getRoles().add(roleRepository.findByName(RoleName.ROLE_ADMIN).get());
             userRepository.save(admin);
@@ -43,6 +46,7 @@ public class DataSeeder {
                     .email("user@test.com")
                     .fullName("Обычный Пользователь")
                     .password(passwordEncoder.encode("user123"))
+                    .roles(new HashSet<>())
                     .build();
             user.getRoles().add(roleRepository.findByName(RoleName.ROLE_USER).get());
             userRepository.save(user);
@@ -54,6 +58,7 @@ public class DataSeeder {
                     .email("manager@test.com")
                     .fullName("Менеджер")
                     .password(passwordEncoder.encode("manager123"))
+                    .roles(new HashSet<>())
                     .build();
             manager.getRoles().add(roleRepository.findByName(RoleName.ROLE_MANAGER).get());
             userRepository.save(manager);

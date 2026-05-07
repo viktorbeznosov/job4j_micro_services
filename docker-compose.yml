@@ -1,19 +1,38 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: micro-postgres
+  postgres-auth:
+    image: postgres:15
+    container_name: postgres-auth
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: auth_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - micro-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-payment:
+    image: postgres:15
+    container_name: postgres-payment
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_payment_data:/var/lib/postgresql/data
+    networks:
+      - micro-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d payment_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,14 +45,16 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auth_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       JWT_SECRET: mySuperSecretKeyForJWTProductionLikeProject12345678901234567890
       SERVER_PORT: 8081
     depends_on:
-      postgres:
+      postgres-auth:
         condition: service_healthy
+    networks:
+      - micro-network
     restart: unless-stopped
 
   payment:
@@ -44,15 +65,24 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/payment_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payment:5432/payment_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       AUTH_SERVICE_URL: http://auth:8081
       SERVER_PORT: 8082
     depends_on:
-      - auth
-      - postgres
+      auth:
+        condition: service_started
+      postgres-payment:
+        condition: service_healthy
+    networks:
+      - micro-network
     restart: unless-stopped
 
+networks:
+  micro-network:
+    driver: bridge
+
 volumes:
-  postgres_data:
+  postgres_auth_data:
+  postgres_payment_data:
