@@ -5,10 +5,24 @@ namespace: microservices-demo
 
 resources:
   - namespace.yaml
-  - configmap/
-  - secrets/
-  - postgres-auth/
-  - postgres-payment/
-  - auth/
-  - payment/
-  - ingress/
+  - configmap/auth-configmap.yaml
+  - configmap/payment-configmap.yaml
+  - configmap/postgres-auth-configmap.yaml
+  - configmap/postgres-payment-configmap.yaml
+  - secrets/auth-secret.yaml
+  - secrets/payment-secret.yaml
+  - secrets/postgres-auth-secret.yaml
+  - secrets/postgres-payment-secret.yaml
+  - postgres-auth/postgres-auth-deployment.yaml
+  - postgres-auth/postgres-auth-service.yaml
+  - postgres-auth/postgres-auth-pvc.yaml
+  - postgres-auth/postgres-auth-init-configmap.yaml
+  - postgres-payment/postgres-payment-deployment.yaml
+  - postgres-payment/postgres-payment-service.yaml
+  - postgres-payment/postgres-payment-pvc.yaml
+  - postgres-payment/postgres-payment-init-configmap.yaml
+  - auth/auth-deployment.yaml
+  - auth/auth-service.yaml
+  - payment/payment-deployment.yaml
+  - payment/payment-service.yaml
+  - ingress/app-ingress.yaml
