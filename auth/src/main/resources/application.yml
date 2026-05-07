@@ -1,0 +1,36 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  secret: mySuperSecretKeyForJWTProductionLikeProject12345678901234567890
+  expiration: 86400000
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.example.auth: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

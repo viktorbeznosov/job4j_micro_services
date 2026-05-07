@@ -1,0 +1,31 @@
+# Compiled source
+target/
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# Environment
+.env
