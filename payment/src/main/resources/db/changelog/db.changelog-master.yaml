@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: db/migration/001_ddl_create_payments_table.sql

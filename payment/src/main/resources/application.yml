@@ -11,12 +11,15 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 auth:
   service:
@@ -27,16 +30,45 @@ logging:
     com.example.payment: DEBUG
     ru.job4j.payment: DEBUG
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      authService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - org.springframework.web.client.RestClientException
+          - java.io.IOException
+  timelimiter:
+    instances:
+      authService:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+
+  retry:
+    instances:
+      authService:
+        maxAttempts:3
+        waitDuration: 500ms
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
   endpoint:
     health:
+      show-details: always
       probes:
         enabled: true
-      livenessState:
-        enabled: true
-      readinessState:
-        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true

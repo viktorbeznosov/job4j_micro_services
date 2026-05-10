@@ -11,12 +11,15 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 jwt:
   secret: ${JWT_SECRET:mySuperSecretKeyForJWTProductionLikeProject12345678901234567890}
@@ -32,12 +35,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,env
   endpoint:
     health:
+      show-details: always
       probes:
         enabled: true
-      livenessState:
-        enabled: true
-      readinessState:
-        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true

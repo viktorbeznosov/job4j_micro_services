@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: db/migration/001_ddl_create_roles_table.sql
+  - include:
+      file: db/migration/002_ddl_create_users_table.sql
+  - include:
+      file: db/migration/003_ddl_create_user_roles_table.sql
+  - include:
+      file: db/migration/004_dml_insert_default_roles.sql
